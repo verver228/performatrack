@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="assets/images/uphsd-logo.png" />
+    <title>PERFORMATRACK | Parent Login</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="assets/css/styles.css?v=app-loading-screen-v1" />
+  </head>
+  <body class="login-page parent-login-page" data-app-scripts="assets/js/parent-login.js">
+    <div class="app-loading-screen" id="appLoadingScreen" role="status" aria-live="polite">
+      <span class="app-loading-spinner" aria-hidden="true"></span>
+      <span>Loading PERFORMATRACK...</span>
+    </div>
+    <main class="container portal-container py-4 py-md-5">
+      <header class="portal-header">
+        <a class="portal-brand" href="index.html" aria-label="PERFORMATRACK home">
+          <img src="assets/images/uphsd-logo.png" alt="" />
+          <span>
+            <strong>PERFORMATRACK</strong>
+            <small>UPHSD student performance portal</small>
+          </span>
+        </a>
+        <a href="index.html" class="portal-parent-link portal-back-link">
+          <span class="portal-parent-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 18l-6-6 6-6"></path>
+              <path d="M9 12h11"></path>
+            </svg>
+          </span>
+          <span>Teacher Login</span>
+          <span class="portal-link-arrow" aria-hidden="true">&rarr;</span>
+        </a>
+      </header>
+
+      <section class="portal-layout row align-items-center g-4 g-xl-5">
+        <div class="col-12 col-lg-6">
+          <div class="portal-intro">
+            <p class="portal-eyebrow">UNIVERSITY OF PERPETUAL HELP SYSTEM DALTA</p>
+            <h1>Stay connected to your child's <span>learning journey.</span></h1>
+            <div class="portal-feature-list">
+              <div class="portal-feature">
+                <span class="portal-feature-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 19V5M4 19h17"></path>
+                    <path d="m7 15 4-4 3 2 6-7"></path>
+                  </svg>
+                </span>
+                <span><strong>Grades &amp; progress</strong><small>Follow learning progress over time</small></span>
+              </div>
+              <div class="portal-feature">
+                <span class="portal-feature-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="5" width="18" height="16" rx="2"></rect>
+                    <path d="M16 3v4M8 3v4M3 10h18M8 14h2M14 14h2M8 17h2"></path>
+                  </svg>
+                </span>
+                <span><strong>Attendance</strong><small>Stay up to date with school attendance</small></span>
+              </div>
+              <div class="portal-feature">
+                <span class="portal-feature-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="10" cy="7" r="4"></circle>
+                    <path d="M20 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                </span>
+                <span><strong>Your child's dashboard</strong><small>See school information in one place</small></span>
+              </div>
+            </div>
+            <p class="portal-support-note">
+              <span aria-hidden="true">&#9679;</span>
+              Private access for registered parent accounts
+            </p>
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-6 col-xl-5 ms-xl-auto">
+          <div class="card shadow-sm border-0 login-card portal-login-card">
+            <div class="card-body p-4 p-md-5">
+              <div class="text-center mb-4">
+                <img
+                  class="login-logo mx-auto mb-3"
+                  src="assets/images/uphsd-logo.png"
+                  alt="University of Perpetual Help System DALTA"
+                />
+                <p class="portal-form-label">FAMILY ACCESS</p>
+                <h1 class="h3 mb-1 app-title">Parent Login</h1>
+                <p id="parentLoginSubtitle" class="text-muted mb-0">Sign in to continue.</p>
+              </div>
+
+              <form id="parentLoginForm" novalidate>
+                <div class="mb-3">
+                  <label for="parentUsername" class="form-label">Email</label>
+                  <input
+                    type="email"
+                    class="form-control"
+                    id="parentUsername"
+                    autocomplete="email"
+                    placeholder="Enter your email"
+                    required
+                  />
+                </div>
+
+                <div class="mb-2">
+                  <label for="parentPassword" class="form-label">Password</label>
+                  <div class="input-group">
+                    <input
+                      type="password"
+                      class="form-control"
+                      id="parentPassword"
+                      autocomplete="current-password"
+                      placeholder="Enter your password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      class="btn btn-outline-secondary"
+                      id="toggleParentPasswordBtn"
+                      aria-label="Toggle password visibility"
+                    >
+                      <svg id="parentPasswordEyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div id="parentCapsLockHint" class="small text-warning d-none mb-2">
+                  Caps Lock appears to be on.
+                </div>
+
+                <div class="d-grid">
+                  <button type="submit" class="btn btn-primary btn-lg">Login</button>
+                </div>
+
+                <div class="login-divider"><span>or</span></div>
+                <button type="button" class="btn google-sign-in-button w-100" id="parentGoogleLoginBtn">
+                  <span class="google-mark" aria-hidden="true">G</span>
+                  Continue with Google
+                </button>
+
+                <div id="parentLoginError" class="alert alert-danger mt-3 mb-0 d-none" role="alert"></div>
+
+                <div class="mt-3 d-grid gap-2">
+                  <a href="registration.html?role=parent" class="btn btn-outline-secondary role-register-btn">
+                    Register as Parent
+                  </a>
+                </div>
+
+                <p id="parentRecentLoginHint" class="small text-muted mt-2 mb-0 d-none"></p>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div
+      class="modal fade"
+      id="parentGoogleStudentIdModal"
+      tabindex="-1"
+      aria-labelledby="parentGoogleStudentIdTitle"
+      aria-hidden="true"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title h5" id="parentGoogleStudentIdTitle">Enter your child's Student ID</h2>
+          </div>
+          <div class="modal-body">
+            <p class="text-muted">
+              First-time Google requests need the school-issued Student ID. The school will verify your relationship
+              and link your child before you can view student information.
+            </p>
+            <label for="parentGoogleStudentId" class="form-label">School-issued Student ID</label>
+            <input
+              type="text"
+              class="form-control"
+              id="parentGoogleStudentId"
+              autocomplete="off"
+              maxlength="64"
+              required
+            />
+            <div id="parentGoogleStudentIdError" class="small text-danger mt-2 d-none" role="alert">
+              Enter the school-issued Student ID to submit your request.
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" id="submitParentGoogleStudentIdBtn">Continue</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="assets/js/page-loader.js?v=app-loading-screen-v1"></script>
+  </body>
+</html>

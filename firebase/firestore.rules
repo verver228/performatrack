@@ -1,0 +1,249 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function teacherProfilePath(userId) {
+      return /databases/$(database)/documents/teachers/$(userId);
+    }
+
+    function parentProfilePath(userId) {
+      return /databases/$(database)/documents/parents/$(userId);
+    }
+
+    function userProfile() {
+      return exists(teacherProfilePath(request.auth.uid))
+        ? get(teacherProfilePath(request.auth.uid)).data
+        : exists(parentProfilePath(request.auth.uid))
+          ? get(parentProfilePath(request.auth.uid)).data
+          : get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isTeacher() {
+      return signedIn()
+        && (
+          (
+            exists(teacherProfilePath(request.auth.uid))
+            && get(teacherProfilePath(request.auth.uid)).data.role == 'teacher'
+          )
+          || (
+            !exists(teacherProfilePath(request.auth.uid))
+            && !exists(parentProfilePath(request.auth.uid))
+            && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'teacher'
+          )
+        );
+    }
+
+    function isParent() {
+      return signedIn()
+        && (
+          (
+            exists(parentProfilePath(request.auth.uid))
+            && get(parentProfilePath(request.auth.uid)).data.role == 'parent'
+          )
+          || (
+            !exists(teacherProfilePath(request.auth.uid))
+            && !exists(parentProfilePath(request.auth.uid))
+            && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'parent'
+          )
+        );
+    }
+
+    function validTeacherSubjects(subjects) {
+      return subjects is list
+        && subjects.size() > 0
+        && subjects.size() <= 8
+        && subjects.hasOnly([
+          'Filipino', 'English', 'Math', 'Science',
+          'Araling Panlipunan', 'MAPEH', 'EPP', 'ESP'
+        ]);
+    }
+
+    function teacherCanCreateGradeData(gradeData) {
+      return !userProfile().keys().hasAny(['teacherSubjects'])
+        || (
+          gradeData is map
+          && gradeData.keys().hasOnly(userProfile().teacherSubjects)
+        );
+    }
+
+    function teacherCanUpdateGradeData(newGradeData, oldGradeData) {
+      return !userProfile().keys().hasAny(['teacherSubjects'])
+        || (
+          newGradeData is map
+          && oldGradeData is map
+          && newGradeData.diff(oldGradeData).affectedKeys().hasOnly(userProfile().teacherSubjects)
+        );
+    }
+
+    function isParentOf(studentDocumentId) {
+      return signedIn()
+        && isParent()
+        && userProfile().studentDocId == studentDocumentId;
+    }
+
+    function isParentOfTeacher(teacherId) {
+      return signedIn()
+        && isParent()
+        && userProfile().studentDocId is string
+        && exists(/databases/$(database)/documents/students/$(userProfile().studentDocId))
+        && get(/databases/$(database)/documents/students/$(userProfile().studentDocId)).data.ownerUid == teacherId;
+    }
+
+    match /teachers/{userId} {
+      allow create: if signedIn()
+        && request.auth.uid == userId
+        && !exists(parentProfilePath(userId))
+        && !exists(/databases/$(database)/documents/users/$(userId))
+        && request.resource.data.keys().hasOnly([
+          'fullName', 'email', 'role', 'requestedRole', 'teacherSubjects', 'createdAt'
+        ])
+        && request.resource.data.fullName is string
+        && request.resource.data.email is string
+        && request.resource.data.role == 'pending'
+        && request.resource.data.requestedRole == 'teacher'
+        && validTeacherSubjects(request.resource.data.teacherSubjects)
+        && request.resource.data.createdAt == request.time;
+      allow get: if signedIn() && request.auth.uid == userId;
+      allow list: if false;
+      allow update: if signedIn()
+        && request.auth.uid == userId
+        && resource.data.role == 'pending'
+        && resource.data.requestedRole == 'teacher'
+        && !resource.data.keys().hasAny(['teacherSubjects'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['teacherSubjects'])
+        && validTeacherSubjects(request.resource.data.teacherSubjects);
+      allow delete: if false;
+    }
+
+    match /parents/{userId} {
+      allow create: if signedIn()
+        && request.auth.uid == userId
+        && !exists(teacherProfilePath(userId))
+        && !exists(/databases/$(database)/documents/users/$(userId))
+        && request.resource.data.keys().hasOnly([
+          'fullName', 'email', 'role', 'requestedRole', 'requestedStudentId', 'createdAt'
+        ])
+        && request.resource.data.fullName is string
+        && request.resource.data.email is string
+        && request.resource.data.role == 'pending'
+        && request.resource.data.requestedRole == 'parent'
+        && request.resource.data.requestedStudentId is string
+        && request.resource.data.requestedStudentId.size() > 0
+        && request.resource.data.requestedStudentId.size() <= 64
+        && request.resource.data.createdAt == request.time;
+      allow get: if signedIn() && request.auth.uid == userId;
+      allow list: if false;
+      allow update, delete: if false;
+    }
+
+    match /users/{userId} {
+      allow create: if signedIn()
+        && request.auth.uid == userId
+        && !exists(teacherProfilePath(userId))
+        && !exists(parentProfilePath(userId))
+        && request.resource.data.keys().hasOnly([
+          'fullName', 'role', 'requestedRole', 'requestedStudentId', 'teacherSubjects', 'createdAt'
+        ])
+        && request.resource.data.role == 'pending'
+        && request.resource.data.requestedRole in ['teacher', 'parent']
+        && request.resource.data.fullName is string
+        && request.resource.data.createdAt == request.time
+        && (
+          (
+            request.resource.data.requestedRole == 'teacher'
+            && request.resource.data.keys().hasAny(['teacherSubjects'])
+            && validTeacherSubjects(request.resource.data.teacherSubjects)
+          )
+          || (
+            request.resource.data.requestedRole == 'parent'
+            && request.resource.data.requestedStudentId is string
+            && request.resource.data.requestedStudentId.size() > 0
+            && request.resource.data.requestedStudentId.size() <= 64
+            && !request.resource.data.keys().hasAny(['teacherSubjects'])
+          )
+        );
+      allow get: if signedIn() && request.auth.uid == userId;
+      allow list: if false;
+      allow update: if signedIn()
+        && request.auth.uid == userId
+        && resource.data.role == 'pending'
+        && resource.data.requestedRole == 'teacher'
+        && !resource.data.keys().hasAny(['teacherSubjects'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['teacherSubjects'])
+        && request.resource.data.keys().hasAny(['teacherSubjects'])
+        && validTeacherSubjects(request.resource.data.teacherSubjects);
+      allow delete: if false;
+    }
+
+    match /students/{studentId} {
+      allow get, list: if signedIn()
+        && (
+          (isTeacher() && resource.data.ownerUid == request.auth.uid)
+          || isParentOf(studentId)
+        );
+      allow create: if isTeacher()
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.id is string
+        && request.resource.data.name is string
+        && request.resource.data.gradeLevel is string
+        && request.resource.data.section is string
+        && (
+          !userProfile().keys().hasAny(['teacherSubjects'])
+          || (
+            request.resource.data.subjects is list
+            && request.resource.data.subjects.size() > 0
+            && request.resource.data.subjects.hasOnly(userProfile().teacherSubjects)
+          )
+        );
+      allow update: if isTeacher()
+        && resource.data.ownerUid == request.auth.uid
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.id is string;
+      allow delete: if isTeacher() && resource.data.ownerUid == request.auth.uid;
+
+      match /grades/{gradeId} {
+        allow read: if signedIn()
+          && (
+            (isTeacher() && get(/databases/$(database)/documents/students/$(studentId)).data.ownerUid == request.auth.uid)
+            || isParentOf(studentId)
+          );
+        allow create: if isTeacher()
+          && get(/databases/$(database)/documents/students/$(studentId)).data.ownerUid == request.auth.uid
+          && teacherCanCreateGradeData(request.resource.data.data);
+        allow update: if isTeacher()
+          && get(/databases/$(database)/documents/students/$(studentId)).data.ownerUid == request.auth.uid
+          && teacherCanUpdateGradeData(request.resource.data.data, resource.data.data);
+        allow delete: if isTeacher()
+          && get(/databases/$(database)/documents/students/$(studentId)).data.ownerUid == request.auth.uid
+          && !userProfile().keys().hasAny(['teacherSubjects']);
+      }
+
+      match /attendance/{dateId} {
+        allow read: if signedIn()
+          && (
+            (isTeacher() && get(/databases/$(database)/documents/students/$(studentId)).data.ownerUid == request.auth.uid)
+            || isParentOf(studentId)
+          );
+        allow create, update: if isTeacher()
+          && get(/databases/$(database)/documents/students/$(studentId)).data.ownerUid == request.auth.uid
+          && request.resource.data.studentId == get(/databases/$(database)/documents/students/$(studentId)).data.id
+          && request.resource.data.status in ['Present', 'Late', 'Excused', 'Absent'];
+        allow delete: if isTeacher()
+          && get(/databases/$(database)/documents/students/$(studentId)).data.ownerUid == request.auth.uid;
+      }
+    }
+
+    match /teacherSettings/{teacherId} {
+      allow read: if signedIn()
+        && (
+          (isTeacher() && request.auth.uid == teacherId)
+          || isParentOfTeacher(teacherId)
+        );
+      allow create, update: if isTeacher() && request.auth.uid == teacherId;
+      allow delete: if isTeacher() && request.auth.uid == teacherId;
+    }
+  }
+}

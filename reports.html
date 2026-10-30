@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="assets/images/uphsd-logo.png" />
+    <title>PERFORMATRACK | Reports</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="assets/css/styles.css?v=app-loading-screen-v1" />
+  </head>
+  <body class="reports-page" data-app-scripts="assets/js/auth-guard.js,assets/js/data-store.js,assets/js/reports.js">
+    <div class="app-loading-screen" id="appLoadingScreen" role="status" aria-live="polite">
+      <span class="app-loading-spinner" aria-hidden="true"></span>
+      <span>Loading PERFORMATRACK...</span>
+    </div>
+    <div class="d-lg-flex app-shell">
+      <aside class="sidebar p-3 p-lg-4">
+        <div class="d-flex align-items-center mb-4">
+          <img class="sidebar-logo me-2" src="assets/images/uphsd-logo.png" alt="UPHSD logo" />
+          <div>
+            <h1 class="h6 mb-0 text-white">PERFORMATRACK</h1>
+            <small class="text-white-50" id="sidebarWelcome">Welcome</small>
+          </div>
+        </div>
+        <nav class="nav flex-column">
+          <a class="nav-link" href="teacher-dashboard.html">Teacher Dashboard</a>
+          <a class="nav-link" href="grades.html">Grades</a>
+          <a class="nav-link" href="attendance.html">Attendance</a>
+          <a class="nav-link active" href="reports.html">Reports</a>
+          <a class="nav-link mt-3" href="index.html">Logout</a>
+        </nav>
+      </aside>
+
+      <main class="content-wrap p-3 p-lg-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+          <h2 class="h4 mb-0 text-primary-custom">Reports</h2>
+          <button class="btn btn-primary" id="exportPdfBtn">Export to PDF</button>
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-header bg-white">
+            <h3 class="h6 mb-0">Class Performance Summary</h3>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-striped mb-0 align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Section</th>
+                  <th>Students</th>
+                  <th>Average Grade</th>
+                  <th>Attendance Rate</th>
+                  <th>At Risk Count</th>
+                </tr>
+              </thead>
+              <tbody id="reportsSummaryBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header bg-white">
+            <h3 class="h6 mb-0">Section Average Comparison</h3>
+          </div>
+          <div class="card-body">
+            <canvas id="sectionAverageBarChart" height="120"></canvas>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script type="module" src="assets/js/page-loader.js?v=persistent-sidebar-welcome-v1"></script>
+  </body>
+</html>
